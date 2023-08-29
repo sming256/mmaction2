@@ -129,7 +129,7 @@ test_dataloader = dict(
         pipeline=[
             dict(
                 type='LoadImageFromFile',
-                file_client_args=dict(backend='disk')),
+                backend_args=dict(backend='disk')),
             dict(type='Resize', scale=(1333, 800), keep_ratio=True),
             dict(type='LoadAnnotations', with_bbox=True),
             dict(

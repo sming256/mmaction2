@@ -4,9 +4,9 @@ _base_ = [
 
 model = dict(cls_head=dict(num_classes=710))
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='SampleFrames', clip_len=32, frame_interval=2, num_clips=1),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -17,7 +17,7 @@ train_pipeline = [
     dict(type='PackActionInputs')
 ]
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=32,
@@ -31,7 +31,7 @@ val_pipeline = [
     dict(type='PackActionInputs')
 ]
 test_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=32,

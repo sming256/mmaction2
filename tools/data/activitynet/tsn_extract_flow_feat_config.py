@@ -13,11 +13,11 @@ dataset_type = 'RawframeDataset'
 data_root_val = 'data/kinetics400/rawframes_val'
 ann_file_val = 'data/kinetics400/kinetics400_val_list_rawframes.txt'
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 
 test_pipeline = [
     dict(type='UntrimmedSampleFrames', clip_len=clip_len, clip_interval=16),
-    dict(type='RawFrameDecode', **file_client_args),
+    dict(type='RawFrameDecode', **backend_args),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=256),
     dict(type='FormatShape', input_format='NCHW_Flow'),

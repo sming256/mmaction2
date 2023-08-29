@@ -115,10 +115,10 @@ data_root_val = 'data/ucf101/videos_val/'
 ann_file_train = 'data/ucf101/ucf101_train_list.txt'
 ann_file_val = 'data/ucf101/ucf101_val_list.txt'
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='SampleFrames', clip_len=1, frame_interval=1, num_clips=3),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -134,7 +134,7 @@ train_pipeline = [
     dict(type='PackActionInputs')
 ]
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=1,
@@ -148,7 +148,7 @@ val_pipeline = [
     dict(type='PackActionInputs')
 ]
 test_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=1,

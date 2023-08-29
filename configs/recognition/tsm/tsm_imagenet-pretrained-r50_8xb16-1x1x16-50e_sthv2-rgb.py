@@ -2,11 +2,11 @@ _base_ = ['tsm_imagenet-pretrained-r50_8xb16-1x1x8-50e_sthv2-rgb.py']
 
 model = dict(backbone=dict(num_segments=16), cls_head=dict(num_segments=16))
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 
 sthv2_flip_label_map = {86: 87, 87: 86, 93: 94, 94: 93, 166: 167, 167: 166}
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='SampleFrames', clip_len=1, frame_interval=1, num_clips=16),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -23,7 +23,7 @@ train_pipeline = [
     dict(type='PackActionInputs')
 ]
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=1,
@@ -37,7 +37,7 @@ val_pipeline = [
     dict(type='PackActionInputs')
 ]
 test_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=1,

@@ -110,7 +110,7 @@
 
     数据集的其他字段不需要修改。请确保 `filename_tmpl` 与帧数据匹配，并参考[配置文件文档](../user_guides/config.md)了解更多关于配置文件的详细信息。
 
-  - `transform` 相关：在 `train_pipeline`/`val_pipeline`/`test_pipeline` 中删除 `dict(type='DecordInit', **file_client_args)`，将 `dict(type='DecordDecode')` 修改为 `dict(type='RawFrameDecode', **file_client_args)`，并确保在配置文件中定义了 `file_client_args = dict(io_backend='disk')`。
+  - `transform` 相关：在 `train_pipeline`/`val_pipeline`/`test_pipeline` 中删除 `dict(type='DecordInit', **backend_args)`，将 `dict(type='DecordDecode')` 修改为 `dict(type='RawFrameDecode', **backend_args)`，并确保在配置文件中定义了 `backend_args = dict(io_backend='local')`。
 
   有关自定义数据集的更多修改，请参考[准备数据集](../user_guides/prepare_dataset.md)和[自定义数据集](../advanced_guides/customize_dataset.md)。
 

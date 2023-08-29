@@ -413,7 +413,7 @@ class TestDecode(BaseTestLoading):
 
         inputs['gt_bboxes'] = np.array([[0, 0, 1, 1]])
         inputs['proposals'] = np.array([[0, 0, 1, 1]])
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -424,7 +424,7 @@ class TestDecode(BaseTestLoading):
         inputs = copy.deepcopy(self.frame_results)
         inputs['frame_inds'] = np.arange(1, self.total_frames, 2)[:,
                                                                   np.newaxis]
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -437,7 +437,7 @@ class TestDecode(BaseTestLoading):
         # since the test images start with index 1, we plus 1 to frame_inds
         # in order to pass the CI
         inputs['frame_inds'] = inputs['frame_inds'] + 1
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -447,7 +447,7 @@ class TestDecode(BaseTestLoading):
         # test frame selector with 1 dim input
         inputs = copy.deepcopy(self.frame_results)
         inputs['frame_inds'] = np.arange(1, self.total_frames, 5)
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -460,7 +460,7 @@ class TestDecode(BaseTestLoading):
         # since the test images start with index 1, we plus 1 to frame_inds
         # in order to pass the CI
         inputs['frame_inds'] = inputs['frame_inds'] + 1
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -470,7 +470,7 @@ class TestDecode(BaseTestLoading):
         # test frame selector with 1 dim input
         inputs = copy.deepcopy(self.frame_results)
         inputs['frame_inds'] = np.arange(1, self.total_frames, 2)
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -483,7 +483,7 @@ class TestDecode(BaseTestLoading):
         # since the test images start with index 1, we plus 1 to frame_inds
         # in order to pass the CI
         inputs['frame_inds'] = inputs['frame_inds'] + 1
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -493,7 +493,7 @@ class TestDecode(BaseTestLoading):
         # test frame selector with 1 dim input for flow images
         inputs = copy.deepcopy(self.flow_frame_results)
         inputs['frame_inds'] = np.arange(1, self.total_frames, 2)
-        frame_selector = RawFrameDecode(io_backend='disk')
+        frame_selector = RawFrameDecode(io_backend='local')
         results = frame_selector(inputs)
         assert assert_dict_has_keys(results, target_keys)
         assert np.shape(results['imgs']) == (len(inputs['frame_inds']), 240,
@@ -511,7 +511,7 @@ class TestDecode(BaseTestLoading):
             # in order to pass the CI
             inputs['frame_inds'] = inputs['frame_inds'] + 1
             frame_selector = RawFrameDecode(
-                io_backend='disk', decoding_backend='turbojpeg')
+                io_backend='local', decoding_backend='turbojpeg')
             results = frame_selector(inputs)
             assert assert_dict_has_keys(results, target_keys)
             assert np.shape(results['imgs']) == (len(inputs['frame_inds']),
@@ -522,7 +522,7 @@ class TestDecode(BaseTestLoading):
             inputs = copy.deepcopy(self.frame_results)
             inputs['frame_inds'] = np.arange(1, self.total_frames, 5)
             frame_selector = RawFrameDecode(
-                io_backend='disk', decoding_backend='turbojpeg')
+                io_backend='local', decoding_backend='turbojpeg')
             results = frame_selector(inputs)
             assert assert_dict_has_keys(results, target_keys)
             assert np.shape(results['imgs']) == (len(inputs['frame_inds']),
@@ -731,7 +731,7 @@ class TestLoadImageFromFile:
         assert results['ori_shape'] == (240, 320)
         assert repr(transform) == transform.__class__.__name__ + \
             "(ignore_empty=False, to_float32=False, color_type='color', " + \
-            "imdecode_backend='cv2', io_backend='disk')"
+            "imdecode_backend='cv2', io_backend='local')"
 
         # to_float32
         transform = LoadRGBFromFile(to_float32=True)

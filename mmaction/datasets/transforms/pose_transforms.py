@@ -4,9 +4,9 @@ import pickle
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import mmengine.fileio as fileio
 from mmcv.transforms import BaseTransform, KeyMapper
 from mmengine.dataset import Compose
-from mmengine.fileio import FileClient
 from scipy.stats import mode
 from torch.nn.modules.utils import _pair
 
@@ -34,11 +34,11 @@ class LoadKineticsPose(BaseTransform):
             max_person). Default: dict(face=1, torso=2, limb=3).
         source (str): The sources of the keypoints used. Choices are 'mmpose'
             and 'openpose-18'. Default: 'mmpose'.
-        kwargs (dict, optional): Arguments for FileClient.
+        kwargs (dict, optional): Arguments for fileio.
     """
 
     def __init__(self,
-                 io_backend='disk',
+                 io_backend='local',
                  squeeze=True,
                  max_person=100,
                  keypoint_weight=dict(face=1, torso=2, limb=3),
@@ -65,7 +65,7 @@ class LoadKineticsPose(BaseTransform):
             raise NotImplementedError('Unknown source of Kinetics Pose')
 
         self.kwargs = kwargs
-        self.file_client = None
+        self.backend = None
 
     def transform(self, results):
         """Perform the kinetics pose decoding.
@@ -84,10 +84,10 @@ class LoadKineticsPose(BaseTransform):
             anno_inds = results.pop('anno_inds')
         results.pop('box_score', None)
 
-        if self.file_client is None:
-            self.file_client = FileClient(self.io_backend, **self.kwargs)
+        if self.backend is None:
+            self.backend = fileio.get_file_backend(backend_args={'backend': self.io_backend, **self.kwargs})
 
-        bytes = self.file_client.get(filename)
+        bytes = self.backend.get(filename)
 
         # only the kp array is in the pickle file, each kp include x, y, score.
         kps = pickle.loads(bytes)

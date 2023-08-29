@@ -13,10 +13,10 @@ data_root_val = 'data/kinetics700/videos_val'
 ann_file_train = 'data/kinetics700/kinetics700_train_list_videos.txt'
 ann_file_val = 'data/kinetics700/kinetics700_val_list_videos.txt'
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='SampleFrames', clip_len=4, frame_interval=16, num_clips=1),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -28,7 +28,7 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=4,
@@ -43,7 +43,7 @@ val_pipeline = [
 ]
 
 test_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=4,

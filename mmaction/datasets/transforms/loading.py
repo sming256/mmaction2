@@ -9,8 +9,8 @@ from typing import Dict, List, Optional, Union
 import mmcv
 import numpy as np
 import torch
+import mmengine.fileio as fileio
 from mmcv.transforms import BaseTransform
-from mmengine.fileio import FileClient
 
 from mmaction.registry import TRANSFORMS
 from mmaction.utils import get_random_string, get_shm_dir, get_thread_id
@@ -41,7 +41,7 @@ class LoadRGBFromFile(BaseTransform):
             See :func:``mmcv.imfrombytes`` for details.
             Defaults to 'cv2'.
         io_backend (str): io backend where frames are store.
-            Default: 'disk'.
+            Default: 'local'.
         ignore_empty (bool): Whether to allow loading empty image or file path
             not existent. Defaults to False.
         kwargs (dict): Args for file client.
@@ -51,14 +51,14 @@ class LoadRGBFromFile(BaseTransform):
                  to_float32: bool = False,
                  color_type: str = 'color',
                  imdecode_backend: str = 'cv2',
-                 io_backend: str = 'disk',
+                 io_backend: str = 'local',
                  ignore_empty: bool = False,
                  **kwargs) -> None:
         self.ignore_empty = ignore_empty
         self.to_float32 = to_float32
         self.color_type = color_type
         self.imdecode_backend = imdecode_backend
-        self.file_client = FileClient(io_backend, **kwargs)
+        self.backend = fileio.get_file_backend(backend_args={'backend': io_backend, **kwargs})
         self.io_backend = io_backend
 
     def transform(self, results: dict) -> dict:
@@ -73,7 +73,7 @@ class LoadRGBFromFile(BaseTransform):
 
         filename = results['img_path']
         try:
-            img_bytes = self.file_client.get(filename)
+            img_bytes = self.backend.get(filename)
             img = mmcv.imfrombytes(
                 img_bytes,
                 flag=self.color_type,
@@ -793,14 +793,14 @@ class PyAVInit(BaseTransform):
 
     Args:
         io_backend (str): io backend where frames are store.
-            Default: 'disk'.
+            Default: 'local'.
         kwargs (dict): Args for file client.
     """
 
-    def __init__(self, io_backend='disk', **kwargs):
+    def __init__(self, io_backend='local', **kwargs):
         self.io_backend = io_backend
         self.kwargs = kwargs
-        self.file_client = None
+        self.backend = None
 
     def transform(self, results):
         """Perform the PyAV initialization.
@@ -815,10 +815,10 @@ class PyAVInit(BaseTransform):
             raise ImportError('Please run "conda install av -c conda-forge" '
                               'or "pip install av" to install PyAV first.')
 
-        if self.file_client is None:
-            self.file_client = FileClient(self.io_backend, **self.kwargs)
+        if self.backend is None:
+            self.backend = fileio.get_file_backend(backend_args={'backend': self.io_backend})
 
-        file_obj = io.BytesIO(self.file_client.get(results['filename']))
+        file_obj = io.BytesIO(self.backend.get(results['filename']))
         container = av.open(file_obj)
 
         results['video_reader'] = container
@@ -932,7 +932,7 @@ class PIMSInit(BaseTransform):
 
     Args:
         io_backend (str): io backend where frames are store.
-            Default: 'disk'.
+            Default: 'local'.
         mode (str): Decoding mode. Options are 'accurate' and 'efficient'.
             If set to 'accurate', it will always use ``pims.PyAVReaderIndexed``
             to decode videos into accurate frames. If set to 'efficient', it
@@ -942,10 +942,10 @@ class PIMSInit(BaseTransform):
         kwargs (dict): Args for file client.
     """
 
-    def __init__(self, io_backend='disk', mode='accurate', **kwargs):
+    def __init__(self, io_backend='local', mode='accurate', **kwargs):
         self.io_backend = io_backend
         self.kwargs = kwargs
-        self.file_client = None
+        self.backend = None
         self.mode = mode
         assert mode in ['accurate', 'efficient']
 
@@ -962,10 +962,10 @@ class PIMSInit(BaseTransform):
             raise ImportError('Please run "conda install pims -c conda-forge" '
                               'or "pip install pims" to install pims first.')
 
-        if self.file_client is None:
-            self.file_client = FileClient(self.io_backend, **self.kwargs)
+        if self.backend is None:
+            self.backend = fileio.get_file_backend(backend_args={'backend': self.io_backend, **self.kwargs})
 
-        file_obj = io.BytesIO(self.file_client.get(results['filename']))
+        file_obj = io.BytesIO(self.backend.get(results['filename']))
         if self.mode == 'accurate':
             container = pims.PyAVReaderIndexed(file_obj)
         else:
@@ -1114,19 +1114,19 @@ class DecordInit(BaseTransform):
 
     Args:
         io_backend (str): io backend where frames are store.
-            Defaults to ``'disk'``.
+            Defaults to ``'local'``.
         num_threads (int): Number of thread to decode the video. Defaults to 1.
         kwargs (dict): Args for file client.
     """
 
     def __init__(self,
-                 io_backend: str = 'disk',
+                 io_backend: str = 'local',
                  num_threads: int = 1,
                  **kwargs) -> None:
         self.io_backend = io_backend
         self.num_threads = num_threads
         self.kwargs = kwargs
-        self.file_client = None
+        self.backend = None
 
     def _get_video_reader(self, filename: str) -> object:
         if osp.splitext(filename)[0] == filename:
@@ -1137,9 +1137,10 @@ class DecordInit(BaseTransform):
             raise ImportError(
                 'Please run "pip install decord" to install Decord first.')
 
-        if self.file_client is None:
-            self.file_client = FileClient(self.io_backend, **self.kwargs)
-        file_obj = io.BytesIO(self.file_client.get(filename))
+        if self.backend is None:
+            self.backend = fileio.get_file_backend(backend_args={'backend': self.io_backend, **self.kwargs})
+
+        file_obj = io.BytesIO(self.backend.get(filename))
         container = decord.VideoReader(file_obj, num_threads=self.num_threads)
         return container
 
@@ -1263,15 +1264,15 @@ class OpenCVInit(BaseTransform):
 
     Args:
         io_backend (str): io backend where frames are store.
-            Defaults to ``'disk'``.
+            Defaults to ``'local'``.
     """
 
-    def __init__(self, io_backend: str = 'disk', **kwargs) -> None:
+    def __init__(self, io_backend: str = 'local', **kwargs) -> None:
         self.io_backend = io_backend
         self.kwargs = kwargs
-        self.file_client = None
+        self.backend = None
         self.tmp_folder = None
-        if self.io_backend != 'disk':
+        if self.io_backend != 'local':
             random_string = get_random_string()
             thread_id = get_thread_id()
             self.tmp_folder = osp.join(get_shm_dir(),
@@ -1285,17 +1286,17 @@ class OpenCVInit(BaseTransform):
             results (dict): The resulting dict to be modified and passed
                 to the next transform in pipeline.
         """
-        if self.io_backend == 'disk':
+        if self.io_backend == 'local':
             new_path = results['filename']
         else:
-            if self.file_client is None:
-                self.file_client = FileClient(self.io_backend, **self.kwargs)
+            if self.backend is None:
+                self.backend = fileio.get_file_backend(backend_args={'backend': self.io_backend, **self.kwargs})
 
             thread_id = get_thread_id()
             # save the file of same thread at the same place
             new_path = osp.join(self.tmp_folder, f'tmp_{thread_id}.mp4')
             with open(new_path, 'wb') as f:
-                f.write(self.file_client.get(results['filename']))
+                f.write(self.backend.get(results['filename']))
 
         container = mmcv.VideoReader(new_path)
         results['new_path'] = new_path
@@ -1377,19 +1378,19 @@ class RawFrameDecode(BaseTransform):
 
     Args:
         io_backend (str): IO backend where frames are stored.
-            Defaults to ``'disk'``.
+            Defaults to ``'local'``.
         decoding_backend (str): Backend used for image decoding.
             Defaults to ``'cv2'``.
     """
 
     def __init__(self,
-                 io_backend: str = 'disk',
+                 io_backend: str = 'local',
                  decoding_backend: str = 'cv2',
                  **kwargs) -> None:
         self.io_backend = io_backend
         self.decoding_backend = decoding_backend
         self.kwargs = kwargs
-        self.file_client = None
+        self.backend = None
 
     def transform(self, results: dict) -> dict:
         """Perform the ``RawFrameDecode`` to pick frames given indices.
@@ -1404,8 +1405,8 @@ class RawFrameDecode(BaseTransform):
         filename_tmpl = results['filename_tmpl']
         modality = results['modality']
 
-        if self.file_client is None:
-            self.file_client = FileClient(self.io_backend, **self.kwargs)
+        if self.backend is None:
+            self.backend = fileio.get_file_backend(backend_args={'backend': self.io_backend, **self.kwargs})
 
         imgs = list()
 
@@ -1426,7 +1427,7 @@ class RawFrameDecode(BaseTransform):
             frame_idx += offset
             if modality == 'RGB':
                 filepath = osp.join(directory, filename_tmpl.format(frame_idx))
-                img_bytes = self.file_client.get(filepath)
+                img_bytes = self.backend.get(filepath)
                 # Get frame with channel order RGB directly.
                 cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
                 imgs.append(cur_frame)
@@ -1435,9 +1436,9 @@ class RawFrameDecode(BaseTransform):
                                       filename_tmpl.format('x', frame_idx))
                 y_filepath = osp.join(directory,
                                       filename_tmpl.format('y', frame_idx))
-                x_img_bytes = self.file_client.get(x_filepath)
+                x_img_bytes = self.backend.get(x_filepath)
                 x_frame = mmcv.imfrombytes(x_img_bytes, flag='grayscale')
-                y_img_bytes = self.file_client.get(y_filepath)
+                y_img_bytes = self.backend.get(y_filepath)
                 y_frame = mmcv.imfrombytes(y_img_bytes, flag='grayscale')
                 imgs.append(np.stack([x_frame, y_frame], axis=-1))
             else:
@@ -1578,17 +1579,17 @@ class ImageDecode(BaseTransform):
     and "original_shape".
 
     Args:
-        io_backend (str): IO backend where frames are stored. Default: 'disk'.
+        io_backend (str): IO backend where frames are stored. Default: 'local'.
         decoding_backend (str): Backend used for image decoding.
             Default: 'cv2'.
-        kwargs (dict, optional): Arguments for FileClient.
+        kwargs (dict, optional): Arguments for fileio.
     """
 
-    def __init__(self, io_backend='disk', decoding_backend='cv2', **kwargs):
+    def __init__(self, io_backend='local', decoding_backend='cv2', **kwargs):
         self.io_backend = io_backend
         self.decoding_backend = decoding_backend
         self.kwargs = kwargs
-        self.file_client = None
+        self.backend = None
 
     def transform(self, results):
         """Perform the ``ImageDecode`` to load image given the file path.
@@ -1601,11 +1602,11 @@ class ImageDecode(BaseTransform):
 
         filename = results['filename']
 
-        if self.file_client is None:
-            self.file_client = FileClient(self.io_backend, **self.kwargs)
+        if self.backend is None:
+            self.backend = fileio.get_file_backend(backend_args={'backend': self.io_backend, **self.kwargs})
 
         imgs = list()
-        img_bytes = self.file_client.get(filename)
+        img_bytes = self.backend.get(filename)
 
         img = mmcv.imfrombytes(img_bytes, channel_order='rgb')
         imgs.append(img)

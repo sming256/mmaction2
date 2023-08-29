@@ -32,11 +32,11 @@ data_root_val = 'data/kinetics400/rawframes_val'
 ann_file_train = 'data/kinetics400/kinetics400_train_list_flow.txt'
 ann_file_val = 'data/kinetics400/kinetics400_val_list_flow.txt'
 ann_file_test = 'data/kinetics400/kinetics400_val_list_flow.txt'
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 train_pipeline = [
     dict(
         type='SampleFrames', clip_len=clip_len, frame_interval=1, num_clips=3),
-    dict(type='RawFrameDecode', **file_client_args),
+    dict(type='RawFrameDecode', **backend_args),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='RandomResizedCrop'),
     dict(type='Resize', scale=(224, 224), keep_ratio=False),
@@ -51,7 +51,7 @@ val_pipeline = [
         frame_interval=1,
         num_clips=3,
         test_mode=True),
-    dict(type='RawFrameDecode', **file_client_args),
+    dict(type='RawFrameDecode', **backend_args),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=224),
     dict(type='FormatShape', input_format='NCHW'),

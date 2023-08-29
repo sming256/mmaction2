@@ -22,7 +22,7 @@ custom_hooks = [
         type='mmdet.PipelineSwitchHook',
         switch_epoch=180,
         switch_pipeline=[
-            dict(type='LoadImage', file_client_args=dict(backend='disk')),
+            dict(type='LoadImage', backend_args=dict(backend='disk')),
             dict(type='GetBBoxCenterScale'),
             dict(
                 type='RandomBBoxTransform',
@@ -73,7 +73,7 @@ log_processor = dict(
 log_level = 'INFO'
 load_from = None
 resume = False
-file_client_args = dict(backend='disk')
+backend_args = dict(backend='disk')
 train_cfg = dict(by_epoch=True, max_epochs=210, val_interval=10)
 val_cfg = dict()
 test_cfg = dict()
@@ -165,7 +165,7 @@ dataset_type = 'CocoWholeBodyHandDataset'
 data_mode = 'topdown'
 data_root = 'data/coco/'
 train_pipeline = [
-    dict(type='LoadImage', file_client_args=dict(backend='disk')),
+    dict(type='LoadImage', backend_args=dict(backend='disk')),
     dict(type='GetBBoxCenterScale'),
     dict(
         type='RandomBBoxTransform', scale_factor=[0.5, 1.5],
@@ -200,13 +200,13 @@ train_pipeline = [
     dict(type='PackPoseInputs')
 ]
 val_pipeline = [
-    dict(type='LoadImage', file_client_args=dict(backend='disk')),
+    dict(type='LoadImage', backend_args=dict(backend='disk')),
     dict(type='GetBBoxCenterScale'),
     dict(type='TopdownAffine', input_size=(256, 256)),
     dict(type='PackPoseInputs')
 ]
 train_pipeline_stage2 = [
-    dict(type='LoadImage', file_client_args=dict(backend='disk')),
+    dict(type='LoadImage', backend_args=dict(backend='disk')),
     dict(type='GetBBoxCenterScale'),
     dict(
         type='RandomBBoxTransform',
@@ -254,7 +254,7 @@ train_dataloader = dict(
         ann_file='annotations/coco_wholebody_train_v1.0.json',
         data_prefix=dict(img='train2017/'),
         pipeline=[
-            dict(type='LoadImage', file_client_args=dict(backend='disk')),
+            dict(type='LoadImage', backend_args=dict(backend='disk')),
             dict(type='GetBBoxCenterScale'),
             dict(
                 type='RandomBBoxTransform',
@@ -303,7 +303,7 @@ val_dataloader = dict(
         data_prefix=dict(img='val2017/'),
         test_mode=True,
         pipeline=[
-            dict(type='LoadImage', file_client_args=dict(backend='disk')),
+            dict(type='LoadImage', backend_args=dict(backend='disk')),
             dict(type='GetBBoxCenterScale'),
             dict(type='TopdownAffine', input_size=(256, 256)),
             dict(type='PackPoseInputs')
@@ -322,7 +322,7 @@ test_dataloader = dict(
         data_prefix=dict(img='val2017/'),
         test_mode=True,
         pipeline=[
-            dict(type='LoadImage', file_client_args=dict(backend='disk')),
+            dict(type='LoadImage', backend_args=dict(backend='disk')),
             dict(type='GetBBoxCenterScale'),
             dict(type='TopdownAffine', input_size=(256, 256)),
             dict(type='PackPoseInputs')

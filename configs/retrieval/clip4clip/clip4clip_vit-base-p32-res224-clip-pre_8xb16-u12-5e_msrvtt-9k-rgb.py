@@ -18,9 +18,9 @@ model = dict(
 
 dataset_type = 'VideoTextDataset'
 data_root = 'data/video_retrieval/msrvtt'
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='UniformSample', clip_len=12, num_clips=1),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -30,7 +30,7 @@ train_pipeline = [
     dict(type='PackActionInputs', collect_keys=('imgs', 'text'))
 ]
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='UniformSample', clip_len=12, num_clips=1, test_mode=True),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),

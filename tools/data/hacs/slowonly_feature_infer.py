@@ -47,7 +47,7 @@ data_root = './data'
 ann_file = 'hacs_data.txt'
 
 test_pipeline = [
-    dict(type='DecordInit', io_backend='disk'),
+    dict(type='DecordInit', io_backend='local'),
     dict(
         type='SampleFrames',
         clip_len=8,

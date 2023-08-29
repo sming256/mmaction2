@@ -3,10 +3,10 @@ _base_ = [('slowonly_imagenet-pretrained-r50_16xb16-'
 
 model = dict(cls_head=dict(num_classes=710))
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='SampleFrames', clip_len=8, frame_interval=8, num_clips=1),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -18,7 +18,7 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=8,
@@ -33,7 +33,7 @@ val_pipeline = [
 ]
 
 test_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=8,

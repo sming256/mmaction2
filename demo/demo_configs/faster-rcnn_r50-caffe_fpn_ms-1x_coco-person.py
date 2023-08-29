@@ -113,10 +113,10 @@ model = dict(
             max_per_img=100)))
 dataset_type = 'CocoDataset'
 data_root = 'data/coco/'
-file_client_args = dict(backend='disk')
+backend_args = dict(backend='disk')
 
 test_pipeline = [
-    dict(type='LoadImageFromFile', file_client_args=file_client_args),
+    dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(type='mmdet.Resize', scale=(1333, 800), keep_ratio=True),
     dict(
         type='mmdet.PackDetInputs',

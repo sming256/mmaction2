@@ -20,9 +20,9 @@ dataset_type = 'VideoDataset'
 data_root_val = 'data/kinetics400/videos_val'
 ann_file_val = 'data/kinetics400/kinetics400_val_list_videos.txt'
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 test_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleFrames',
         clip_len=1,

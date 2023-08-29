@@ -19,9 +19,9 @@ ann_file_train = 'data/sthv2/sthv2_train_list_videos.txt'
 ann_file_val = 'data/sthv2/sthv2_val_list_videos.txt'
 ann_file_test = 'data/sthv2/sthv2_val_list_videos.txt'
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='UniformSample', clip_len=16),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -37,7 +37,7 @@ train_pipeline = [
     dict(type='PackActionInputs')
 ]
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='UniformSample', clip_len=16, test_mode=True),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -46,7 +46,7 @@ val_pipeline = [
     dict(type='PackActionInputs')
 ]
 test_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='UniformSample', clip_len=16, test_mode=True),
     dict(type='DecordDecode'),
     dict(type='Resize', scale=(-1, 224)),

@@ -77,14 +77,14 @@ label_file = f'{anno_root}/ava_action_list_v2.1_for_activitynet_2018.pbtxt'
 proposal_file_infer = (
     f'{anno_root}/ava_dense_proposals_{dataset_mode}.FAIR.recall_93.9.pkl')
 
-file_client_args = dict(
+backend_args = dict(
     io_backend='petrel',
     path_mapping=dict({'data/ava': 's3://openmmlab/datasets/action/ava'}))
 
 infer_pipeline = [
     dict(
         type='SampleAVAFrames', clip_len=4, frame_interval=16, test_mode=True),
-    dict(type='RawFrameDecode', **file_client_args),
+    dict(type='RawFrameDecode', **backend_args),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='FormatShape', input_format='NCTHW', collapse=True),
     dict(type='PackActionInputs')

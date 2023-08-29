@@ -73,9 +73,9 @@ ann_file_train = 'data/kinetics400/kinetics400_train_list_videos.txt'
 ann_file_val = 'data/kinetics400/kinetics400_val_list_videos.txt'
 ann_file_test = 'data/kinetics400/kinetics400_val_list_videos.txt'
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 train_pipeline = [
-    dict(type=DecordInit, **file_client_args),
+    dict(type=DecordInit, **backend_args),
     dict(type=UniformSample, clip_len=num_frames, num_clips=1),
     dict(type=DecordDecode),
     dict(type=Resize, scale=(-1, 256)),
@@ -89,7 +89,7 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type=DecordInit, **file_client_args),
+    dict(type=DecordInit, **backend_args),
     dict(type=UniformSample, clip_len=num_frames, num_clips=1, test_mode=True),
     dict(type=DecordDecode),
     dict(type=Resize, scale=(-1, 224)),
@@ -99,7 +99,7 @@ val_pipeline = [
 ]
 
 test_pipeline = [
-    dict(type=DecordInit, **file_client_args),
+    dict(type=DecordInit, **backend_args),
     dict(type=UniformSample, clip_len=num_frames, num_clips=4, test_mode=True),
     dict(type=DecordDecode),
     dict(type=Resize, scale=(-1, 224)),

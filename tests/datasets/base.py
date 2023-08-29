@@ -74,7 +74,7 @@ class BaseTestDataset:
                 clip_len=32,
                 frame_interval=2,
                 num_clips=1),
-            dict(type='RawFrameDecode', io_backend='disk')
+            dict(type='RawFrameDecode', io_backend='local')
         ]
         cls.proposal_pipeline = [
             dict(
@@ -83,7 +83,7 @@ class BaseTestDataset:
                 body_segments=5,
                 aug_segments=(2, 2),
                 aug_ratio=0.5),
-            dict(type='RawFrameDecode', io_backend='disk')
+            dict(type='RawFrameDecode', io_backend='local')
         ]
         cls.proposal_test_pipeline = [
             dict(
@@ -93,7 +93,7 @@ class BaseTestDataset:
                 aug_segments=(2, 2),
                 aug_ratio=0.5,
                 mode='test'),
-            dict(type='RawFrameDecode', io_backend='disk')
+            dict(type='RawFrameDecode', io_backend='local')
         ]
         cls.proposal_train_cfg = ConfigDict(
             dict(

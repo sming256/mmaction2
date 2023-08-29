@@ -49,10 +49,10 @@ gt_file = f'{anno_root}/multisports_GT.pkl'
 proposal_file_train = f'{anno_root}/multisports_dense_proposals_train.recall_96.13.pkl'  # noqa: E501
 proposal_file_val = f'{anno_root}/multisports_dense_proposals_val.recall_96.13.pkl'  # noqa: E501
 
-file_client_args = dict(io_backend='disk')
+backend_args = dict(io_backend='local')
 
 train_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(type='SampleAVAFrames', clip_len=32, frame_interval=2),
     dict(type='DecordDecode'),
     dict(type='RandomRescale', scale_range=(256, 320)),
@@ -64,7 +64,7 @@ train_pipeline = [
 
 # The testing is w/o. any cropping / flipping
 val_pipeline = [
-    dict(type='DecordInit', **file_client_args),
+    dict(type='DecordInit', **backend_args),
     dict(
         type='SampleAVAFrames', clip_len=32, frame_interval=2, test_mode=True),
     dict(type='DecordDecode'),
